@@ -76,4 +76,4 @@ git clone https://github.com/$REPO.git /usr/local/gdev-env 2>/dev/null
 ## Run Ansible Playbook ##
 echo 'Handing Playbook to Ansible (will require your sudo password)...'
 echo -e "\n\n"
-/usr/local/gdev-env/bin/dev update
+/usr/local/gdev-env/bin/gdev update
