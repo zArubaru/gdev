@@ -3,6 +3,9 @@
 # We need at least ansible 2.0 for blockinfile directive
 ANSIBLE_NEEDED="2.0"
 
+# This is fork from original
+REPO='onnimonni/dash'
+
 # Returns 1 if upgrade is needed
 # $1 - SYSTEM VERSION
 # $2 - NEEDED VERSION
@@ -68,9 +71,9 @@ echo -e "\n\n"
 
 ## Check out a copy of this repo (first time only) ##
 echo 'Checking out Dash repo...'
-git clone https://github.com/IFTTT/dash.git /usr/local/dev-env 2>/dev/null
+git clone https://github.com/$REPO.git /usr/local/gdev-env 2>/dev/null
 
 ## Run Ansible Playbook ##
 echo 'Handing Playbook to Ansible (will require your sudo password)...'
 echo -e "\n\n"
-/usr/local/dev-env/bin/dev update
+/usr/local/gdev-env/bin/dev update

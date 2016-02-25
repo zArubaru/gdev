@@ -10,7 +10,7 @@
 
 ## The tl;dr Version
 
-    bash <(curl -fsSL https://raw.githubusercontent.com/IFTTT/dash/master/bin/bootstrap)
+    bash <(curl -fsSL https://raw.githubusercontent.com/onnimonni/dash/master/bin/bootstrap)
     # Start a new shell and cd to a project that uses [Docker Compose](https://docs.docker.com/compose/)
     dev up
 
