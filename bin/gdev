@@ -81,8 +81,14 @@ HEREDOC
     if (args[0] == "up")
       args.push("-d")
     end
+    box_ip=`dlite ip`
     args.unshift("docker-compose", "-f /usr/local/gdev-env/docker/services.yml", "-p gdev")
-    system(args.join(" "))
+    system({"BOX_IP" => box_ip},args.join(" "))
+  end
+
+  # Support both commands service / services for syntactic sugar
+  def services(args)
+    self.service(args)
   end
 
   # H.T. https://gist.github.com/lpar/1032297
