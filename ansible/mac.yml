@@ -24,10 +24,16 @@
         - docker-compose
         - dlite
 
+    - name: Create resolver directory
+      file:
+        path: "{{ansible_env.HOME}}/.dlite"
+        state: directory
+        mode: 0755
+
     - name: Start dlite
       command: "{{ dev_env_dir }}/bin/gdev machine create"
       args:
-        creates: "{{ansible_env.HOME}}.dlite/config.json"
+        creates: "{{ansible_env.HOME}}/.dlite/config.json"
 
     - name: Get dlite ip address
       shell: /usr/local/bin/dlite ip
