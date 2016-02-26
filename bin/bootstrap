@@ -3,6 +3,9 @@
 # We need at least ansible 2.0 for blockinfile directive
 ANSIBLE_NEEDED="2.0"
 
+# Only OS X yosemite and later support xhyve
+OSX_NEEDED="10.10.0"
+
 # This is fork from original
 REPO='onnimonni/dash'
 
@@ -39,6 +42,22 @@ update_needed () {
     done
     return 0
 }
+
+# Check that OS X is current enough
+which -s sw_vers
+if [[ $? != 0 ]] ; then
+    echo "ERROR: This is only supported with OS X. What system are you using?"
+    exit 1
+else
+    echo "CHECK: Minimum OS-X version needed: $OSX_NEEDED"
+    OSX_VERSION=$(sw_vers -productVersion)
+    if update_needed $OSX_VERSION $OSX_NEEDED; then
+        echo "ERROR: You need to update your OS X, it is only $OSX_VERSION"
+        exit 1
+    else
+        echo "OK: OS X version is sufficient ($OSX_VERSION)..."
+    fi
+fi
 
 ## Install or Update Homebrew ##
 echo 'Installing or Updating Homebrew...'
