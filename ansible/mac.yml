@@ -3,7 +3,7 @@
   connection: local
 
   vars:
-    dev_env_dir: /Users/onnimonni/Projects/Geniem/dash
+    dev_env_dir: /usr/local/gdev-env/
 
   tasks:
 
