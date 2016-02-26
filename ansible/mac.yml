@@ -27,7 +27,7 @@
     - name: Start dlite
       command: "{{ dev_env_dir }}/bin/gdev machine create"
       args:
-        creates: "/Users/onnimonni/.dlite/config.json"
+        creates: "{{ansible_env.HOME}}.dlite/config.json"
 
     - name: Get dlite ip address
       shell: /usr/local/bin/dlite ip
