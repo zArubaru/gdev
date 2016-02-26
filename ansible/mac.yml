@@ -3,7 +3,7 @@
   connection: local
 
   vars:
-    dev_env_dir: /usr/local/gdev-env/
+    dev_env_dir: /usr/local/gdev-env
 
   tasks:
 
@@ -25,7 +25,7 @@
         - dlite
 
     - name: Start dlite
-      command: "{{ dev_env_dir }}/bin/dev machine create"
+      command: "{{ dev_env_dir }}/bin/gdev machine create"
       args:
         creates: "/Users/onnimonni/.dlite/config.json"
 
