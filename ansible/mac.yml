@@ -50,6 +50,15 @@
       become: yes
       become_method: sudo
 
+    - name: Delete resolver files to trigger dns change
+      file:
+        path: "/etc/resolver/{{item.domain}}"
+        state: absent
+      become: yes
+      become_method: sudo
+      with_items:
+        - { ip: "{{ machine_ip.stdout }}", domain: test }
+
     - name: Create dns resolver files at /etc/resolver/
       template:
         src: "{{ dev_env_dir }}/ansible/resolver-dev.conf.j2"

@@ -14,8 +14,11 @@ dnsmasq:
     - "172.17.0.1:53:53/udp"
   cap_add:
     - NET_ADMIN
-  command: --address=/dev/192.168.99.100
+  # TODO: can't use {BOX_IP} because the variable won't get interpolated
+  command: "--address=/dev/$BOX_IP"
   restart: always
+  environment:
+    BOX_IP: "{BOX_IP}"
 mail:
   image: mailhog/mailhog
   environment:
