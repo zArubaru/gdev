@@ -34,6 +34,8 @@
       command: "{{ dev_env_dir }}/bin/gdev machine create"
       args:
         creates: "{{ansible_env.HOME}}/.dlite/config.json"
+      become: yes
+      become_method: sudo
 
     - name: Get dlite ip address
       shell: /usr/local/bin/dlite ip
