@@ -16,3 +16,13 @@ dnsmasq:
     - NET_ADMIN
   command: --address=/dev/192.168.99.100
   restart: always
+mail:
+  image: mailhog/mailhog
+  environment:
+    # Use easier domain name for mailhog
+    VIRTUAL_HOST: mail.test
+    VIRTUAL_PORT: 8025
+  ports:
+    # Map mailhog into host machine port
+    # This port is used in production too
+    - 172.17.0.1:25:1025
