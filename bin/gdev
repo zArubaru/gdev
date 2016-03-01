@@ -96,6 +96,10 @@ HEREDOC
     system("docker-compose ps")
   end
 
+  def status(args)
+    system("docker-compose ps")
+  end
+
   # H.T. https://gist.github.com/lpar/1032297
   # Runs a specified shell command in a separate thread.
   # If it exceeds the given timeout in seconds, kills it.
