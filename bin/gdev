@@ -34,7 +34,7 @@ HEREDOC
 
   PROXY_UNMODIFIED_TO_COMPOSE=%w{build kill logs ps pull restart rm start stop}
   PROXY_MODIFIED=%w{up run}
-  OTHER_COMMANDS=%w{machine update service}
+  OTHER_COMMANDS=%w{machine update service status}
 
   def initialize(args)
     if PROXY_UNMODIFIED_TO_COMPOSE.include?(args[0])
@@ -55,7 +55,7 @@ HEREDOC
   end
 
   def up(args)
-    dash(["up"])
+    service(["up"])
     args.insert(1, "-d")
     args.unshift("docker-compose")
     system(args.join(" "))
@@ -83,6 +83,10 @@ HEREDOC
     end
     args.unshift("docker-compose", "-f /usr/local/gdev-env/docker/services.yml", "-p gdev")
     system(args.join(" "))
+  end
+
+  def status(args)
+    system("docker-compose ps")
   end
 
   # H.T. https://gist.github.com/lpar/1032297
