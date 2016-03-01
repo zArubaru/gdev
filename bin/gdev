@@ -34,7 +34,7 @@ HEREDOC
 
   PROXY_UNMODIFIED_TO_COMPOSE=%w{build kill logs ps pull restart rm start stop}
   PROXY_MODIFIED=%w{up run}
-  OTHER_COMMANDS=%w{machine update service}
+  OTHER_COMMANDS=%w{machine update service status}
 
   def initialize(args)
     if PROXY_UNMODIFIED_TO_COMPOSE.include?(args[0])
@@ -55,7 +55,7 @@ HEREDOC
   end
 
   def up(args)
-    dash(["up"])
+    service(["up"])
     args.insert(1, "-d")
     args.unshift("docker-compose")
     system(args.join(" "))
@@ -81,14 +81,19 @@ HEREDOC
     if (args[0] == "up")
       args.push("-d")
     end
-    box_ip=`dlite ip`
     args.unshift("docker-compose", "-f /usr/local/gdev-env/docker/services.yml", "-p gdev")
+    box_ip=`dlite ip`
+    if $?.exitstatus != 0
+      abort "ERROR: dlite doesn't have ip-address..."
+    end
+    # Set system variables which we can use in our templates
     system({"BOX_IP" => box_ip},args.join(" "))
   end
 
-  # Support both commands service / services for syntactic sugar
-  def services(args)
-    self.service(args)
+  # Syntactic sugar for: $ gdev ps
+  # I want this to look like vagrant binary
+  def status(args)
+    system("docker-compose ps")
   end
 
   # H.T. https://gist.github.com/lpar/1032297
