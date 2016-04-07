@@ -24,11 +24,22 @@
         - docker-compose
         - dlite
 
-    - name: Create resolver directory
+    - name: Create dlite directory
       file:
         path: "{{ansible_env.HOME}}/.dlite"
         state: directory
         mode: 0755
+
+    - name: Create gdev directory
+      file:
+        path: "{{ansible_env.HOME}}/.dlite"
+        state: directory
+        mode: 0755
+
+    - name: Symlink gdev bin to PATH
+      file:
+        src: /usr/local/gdev-env/bin/gdev
+        dest: /usr/local/bin/gdev
 
     - name: Start dlite
       command: "{{ dev_env_dir }}/bin/gdev machine create"
@@ -68,8 +79,3 @@
       become_method: sudo
       with_items:
         - { ip: "{{ machine_ip.stdout }}", domain: test }
-
-    - name: Symlink gdev bin to PATH
-      file:
-        src: /usr/local/gdev-env/bin/gdev
-        dest: /usr/local/bin/gdev
