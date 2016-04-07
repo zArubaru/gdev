@@ -32,7 +32,7 @@
 
     - name: Create gdev directory
       file:
-        path: "{{ansible_env.HOME}}/.dlite"
+        path: "{{ansible_env.HOME}}/.gdev"
         state: directory
         mode: 0755
 
