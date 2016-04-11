@@ -84,20 +84,15 @@ It is also fairly easy to configure all of this manually. The configuration file
 
 ### Troubleshooting
 
+####
+
 #### When in doubt, restart the VM
 
 Many performance-related issues can be solved by restarting the VM and your containers with `gdev machine restart` then `gdev up`. We have also seen issues with clock drift between the host and guest. Restarting the VM will re-sync the clock.
 
 #### NFS Mount Issues
 
-For NFS shares to work properly after initial setup, you may need to restart the vboxnet network interface and the nfs daemon:
-
-    gdev machine stop
-    sudo nfsd checkexports
-    sudo nfsd restart
-    gdev machine start
-
-or just restart your host machine. Usually this is only required once.
+Dlite can't share paths in `/etc/exports` before doing the installation. Remove anything which is using /Users/$USER/ before installation. This is little limiting at the moment but you can restore contents of `/etc/exports` after installing dlite.
 
 #### Network related problems
 
