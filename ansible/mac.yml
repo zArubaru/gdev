@@ -38,8 +38,9 @@
 
     - name: Symlink gdev bin to PATH
       file:
-        src: /usr/local/gdev-env/bin/gdev
+        src: "{{dev_env_dir}}/bin/gdev"
         dest: /usr/local/bin/gdev
+        state: link
 
     - name: Start dlite
       command: "{{ dev_env_dir }}/bin/gdev machine create"
