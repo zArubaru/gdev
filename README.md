@@ -4,11 +4,30 @@
 
 Helper script for all your container related development needs. This is for locally developing containerized applications in Geniem.
 
-## The tl;dr Version
+## Quick installation
 
     bash <(curl -fsSL https://raw.githubusercontent.com/devgeniem/gdev/master/bin/bootstrap)
     # Start a new shell and cd to a project that uses [Docker Compose](https://docs.docker.com/compose/)
     gdev up
+
+## Short list of usual commands
+```
+# This is similiar to vagrant up
+# It reads docker-compose.yml from current directory and starts up containers
+$ gdev up
+
+# Open shell into web container
+$ gdev shell
+
+# List all containers from project
+$ gdev ps
+
+# List all containers from dlite machine
+$ docker ps -a
+
+# Open bash into any container
+$ docker exec -it $CONTAINER_ID bash
+```
 
 ## Step-By-Step Setup
 
