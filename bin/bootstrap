@@ -104,19 +104,34 @@ fi
 echo -e "\n\n"
 
 ## Check available disk space in gigabytes
-if free_disk_space 40; then
+if free_disk_space 23; then
   echo "CHECK: You have at least 23gb available space. Dlite needs to provision 20gb."
 else
   echo "ERROR: You need to have 23gb available space. Dlite needs to provision 20gb."
 fi
 
-exit 1
-
-## Check out a copy of this repo (first time only) ##
-echo 'Checking out Dash repo...'
-git clone https://github.com/$REPO.git /usr/local/gdev-env 2>/dev/null
+# Check out a copy of this repo (first time only) ##
+GDEV_DIR=/usr/local/gdev-env
+if [ -d "$GDEV_DIR" ]; then
+  echo "Updating pre-existing dash repo..."
+  cd $GDEV_DIR
+  git pull origin master
+else
+  echo "Checking out Dash repo..."
+  git clone https://github.com/$REPO.git $GDEV_DIR 2>/dev/null
+fi
 
 ## Run Ansible Playbook ##
 echo 'Handing Playbook to Ansible (will require your sudo password)...'
 echo -e "\n\n"
+
 /usr/local/gdev-env/bin/gdev update
+
+# Check if ansible succeeded
+if [[ $? != 0 ]] ; then
+  echo "Something went wrong with ansible :(..."
+  echo "Try to reboot your machine and run this installer again."
+else
+  echo "Installation is ready, congratulations!"
+  echo "Now go to your docker project directory and run: $ gdev up"
+fi
