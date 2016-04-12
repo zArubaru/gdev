@@ -43,6 +43,21 @@ update_needed () {
     return 0
 }
 
+# Returns 1 if not enough disk space
+# $1 disk space needed in gb
+free_disk_space() {
+  local needed_gb=$1
+  local available_gb=$(df -g / | tail -n 1 | xargs echo | cut -d' ' -f4)
+
+  echo "Available disk space: "$available_gb"gb"
+
+  if [ "$needed_gb" -ge "$available_gb" ]; then
+    return 1
+  else
+    return 0
+  fi
+}
+
 # Check that OS X is current enough
 which -s sw_vers
 if [[ $? != 0 ]] ; then
@@ -87,6 +102,15 @@ else # Ansible needs to be at least 1.9
   fi
 fi
 echo -e "\n\n"
+
+## Check available disk space in gigabytes
+if free_disk_space 40; then
+  echo "CHECK: You have at least 23gb available space. Dlite needs to provision 20gb."
+else
+  echo "ERROR: You need to have 23gb available space. Dlite needs to provision 20gb."
+fi
+
+exit 1
 
 ## Check out a copy of this repo (first time only) ##
 echo 'Checking out Dash repo...'
