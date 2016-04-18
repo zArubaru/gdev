@@ -15,21 +15,22 @@ Options:
 
 Commands:
   build              Build or rebuild services
+  exec               Run command inside web container
   help               Get help on a command
   kill               Kill containers
   logs               View output from containers
+  machine            Manage the virtual machine
   ps                 List containers
   pull               Pulls service images
   restart            Restart services
   rm                 Remove stopped containers
   run                Run a one-off command
+  shell              Open shell inside container
+  service            Manage Dash services (nginx and dnsmasq, mail)
   start              Start services
   stop               Stop services
   up                 Create and start containers
-  shell               Open shell inside container
-  machine            Manage the virtual machine
   update             Update Dash developer environment
-  service            Manage Dash services (nginx and dnsmasq, mail)
 
 HEREDOC
 
@@ -105,10 +106,6 @@ HEREDOC
 
   # Syntactic sugar for: $ gdev ps
   # I want this to look like vagrant binary
-  def status(args)
-    system("docker-compose ps")
-  end
-
   def status(args)
     system("docker-compose ps")
   end
