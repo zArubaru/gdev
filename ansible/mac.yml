@@ -4,6 +4,7 @@
 
   vars:
     dev_env_dir: /usr/local/gdev-env
+    docker_client_version: 1.10.3
 
   tasks:
 
@@ -23,6 +24,10 @@
         - docker
         - docker-compose
         - dlite
+
+    # Dlite has older version of docker server which we need to use too
+    - name: Change docker to version {{docker_client_version}}
+      shell: brew switch docker {{docker_client_version}}
 
     - name: Create dlite directory
       file:
