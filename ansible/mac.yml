@@ -5,6 +5,7 @@
   vars:
     dev_env_dir: /usr/local/gdev-env
     docker_client_version: 1.10.3
+    gdev_user_files: "{{ansible_env.HOME}}/.gdev"
 
   tasks:
 
