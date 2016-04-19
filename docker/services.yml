@@ -33,3 +33,15 @@ mail:
     # This port is used in production too
     - 172.17.0.1:25:1025
   restart: always
+signaler:
+  image: onnimonni/signaler
+  environment:
+    GENERATOR: "self-signed"
+  volumes:
+    # Mount .gdev folders to store certificates in
+    - ${HOME}/.gdev/certs:/data/certs
+    - ${HOME}/.gdev/ca:/data/ca
+
+    # Mount docker socket so that signaler can auto create certificates
+    - /var/run/docker.sock:/tmp/docker.sock:ro
+  restart: always
