@@ -1,5 +1,6 @@
 nginx:
-  image: jwilder/nginx-proxy
+  # Use jwilder/nginx-proxy but with slight changes
+  build: nginx/
   ports:
     - "80:80"
     - "443:443"

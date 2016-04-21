@@ -104,3 +104,8 @@
       become_method: sudo
       with_items:
         - { ip: "{{ machine_ip.stdout }}", domain: test }
+
+    - name: Build custom images for gdev services
+      command: "{{ dev_env_dir }}/bin/gdev service build"
+      become: yes
+      become_method: sudo
