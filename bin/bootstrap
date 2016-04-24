@@ -9,6 +9,9 @@ OSX_NEEDED="10.10.0"
 # This is fork from original
 REPO='devgeniem/gdev'
 
+# https://github.com/nlf/dhyve-os version needed
+DHYVE_NEEDED="2.3.0"
+
 # Returns 1 if upgrade is needed
 # $1 - SYSTEM VERSION
 # $2 - NEEDED VERSION
@@ -58,6 +61,14 @@ free_disk_space() {
   fi
 }
 
+# Get version of dhyve os
+# $1 ip address for dlite machine
+ssh_get_dhyve_os() {
+  local machine_ip=$1
+  ssh -q -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
+      docker@$machine_ip "cat /etc/version"
+}
+
 # Check that OS X is current enough
 which -s sw_vers
 if [[ $? != 0 ]] ; then
@@ -72,6 +83,14 @@ else
     else
         echo "OK: OS X version is sufficient ($OSX_VERSION)..."
     fi
+fi
+
+# Check if computer supports hypervisor framework
+echo "CHECK: hypervisor framework needs to be enabled in your computer"
+sysctl kern.hv_support
+if [[ $? != 0 ]] ; then
+    echo "ERROR: Your computer is too old to support xhyve"
+    exit 1
 fi
 
 ## Install or Update Homebrew ##
@@ -115,23 +134,73 @@ GDEV_DIR=/usr/local/gdev-env
 if [ -d "$GDEV_DIR" ]; then
   echo "Updating pre-existing dash repo..."
   cd $GDEV_DIR
-  git pull origin master
+  # Remove any local changes and update to origin
+  git fetch && git reset --hard origin/master
 else
   echo "Checking out Dash repo..."
   git clone https://github.com/$REPO.git $GDEV_DIR 2>/dev/null
 fi
 
+# Install dlite and docker dependencies with ansible
+ansible-playbook /usr/local/gdev-env/ansible/mac.yml -i 127.0.0.1, --tags=pre-install
+
+##
+# NOTE: dlite installation is moved away from ansible because it didn't install correctly
+##
+
+# Check if dlite is already installed
+if [ -f "$HOME/.dlite/config.json" ]; then
+
+  echo "Dlite is already installed..."
+  # Start dlite if not up
+  if [ ! -S "/var/run/docker.sock" ]; then
+    echo "Dlite was stopped, starting dlite..."
+    /usr/local/bin/dlite start
+    sleep 10
+  fi
+
+  dlite_ip=$(dlite ip)
+  if [[ $? == 0 ]] ; then
+
+    # DHYVE OS can only be checked through ssh into the VM:
+    dhyve_version_installed=$( ssh_get_dhyve_os $dlite_ip )
+    echo "Current Dhyve OS version: '$dhyve_version_installed'"
+
+    if [ -z "$dhyve_version_installed" ]; then
+      echo "ERROR: Can't check dlite dhyve os version"
+      echo "Check if dlite is up and running..."
+      exit 1
+
+    # Don't use update_needed here because we want exact version
+    elif [ "$dhyve_version_installed" != "$DHYVE_NEEDED" ]; then
+      echo "Dlite is installed but dhyve-os is wrong..."
+      echo "Updating dhyve-os through dlite..."
+      /usr/local/bin/dlite stop
+      /usr/local/bin/dlite update -v $DHYVE_VERSION
+      /usr/local/bin/dlite start
+      sleep 10
+    else
+      echo "Your dhyve-os version is already $DHYVE_NEEDED..."
+    fi
+  else
+    echo "ERROR: Can't check dlite ip"
+    exit 1
+  fi
+
+else # If dlite was not installed yet
+  echo 'Installing dlite VM...'
+  sudo /usr/local/bin/dlite install -v $DHYVE_VERSION --share=$HOME
+
+  echo 'Starting dlite VM...'
+  /usr/local/bin/dlite start
+fi
+
 ## Run Ansible Playbook ##
 echo 'Handing Playbook to Ansible (will require your sudo password)...'
-echo -e "\n\n"
+echo -e "\n"
 
-/usr/local/gdev-env/bin/gdev update
+# Continue with gdev setup
+ansible-playbook /usr/local/gdev-env/ansible/mac.yml -i 127.0.0.1, --ask-become-pass --verbose --skip-tags=pre-install
 
-# Check if ansible succeeded
-if [[ $? != 0 ]] ; then
-  echo "Something went wrong with ansible :(..."
-  echo "Try to reboot your machine and run this installer again."
-else
-  echo "Installation is ready, congratulations!"
-  echo "Now go to your docker project directory and run: $ gdev up"
-fi
+# Help user to debug usual problems
+echo "If you had any errors you can try reboot your machine and then running this again."
