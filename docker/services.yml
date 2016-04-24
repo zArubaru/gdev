@@ -1,3 +1,9 @@
+##
+# NOTICE:
+# env BOX_IP is defined only for gdev services
+# This is the ip address of the VM which runs docker containers
+##
+
 nginx:
   # Use jwilder/nginx-proxy but with slight changes
   build: nginx/
@@ -6,23 +12,20 @@ nginx:
     - "443:443"
   volumes:
     - /var/run/docker.sock:/tmp/docker.sock:ro
-    # Mount self signed https certificates for testing
+    # Mount self signed https certificates for testing environment
     - ${HOME}/.gdev/certs:/etc/nginx/certs:ro
   restart: always
 dnsmasq:
   image: andyshinn/dnsmasq
   ports:
-    - "{BOX_IP}:53:53/tcp"
-    - "{BOX_IP}:53:53/udp"
-    - "172.17.0.1:53:53/tcp"
-    - "172.17.0.1:53:53/udp"
+    - ${BOX_IP}:53:53/tcp
+    - ${BOX_IP}:53:53/udp
+    - 172.17.0.1:53:53/tcp
+    - 172.17.0.1:53:53/udp
   cap_add:
     - NET_ADMIN
-  # TODO: can't use {BOX_IP} because the variable won't get interpolated
-  command: "--address=/test/$BOX_IP"
+  command: "--address=/test/${BOX_IP}"
   restart: always
-  environment:
-    BOX_IP: "{BOX_IP}"
 mail:
   image: mailhog/mailhog
   environment:
