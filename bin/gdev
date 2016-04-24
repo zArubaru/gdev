@@ -23,6 +23,7 @@ Commands:
   ps                 List containers
   pull               Pulls service images
   restart            Restart services
+  reload             Force recreates all services
   rm                 Remove stopped containers
   run                Run a one-off command
   shell              Open shell inside container
@@ -36,7 +37,7 @@ HEREDOC
 
   PROXY_UNMODIFIED_TO_COMPOSE=%w{build kill logs ps pull restart rm start stop}
   PROXY_MODIFIED=%w{up run}
-  OTHER_COMMANDS=%w{machine update service status shell exec}
+  OTHER_COMMANDS=%w{reload machine update service status shell exec}
 
   def initialize(args)
     if PROXY_UNMODIFIED_TO_COMPOSE.include?(args[0])
@@ -53,6 +54,15 @@ HEREDOC
   def run(args)
     args.insert(1, "--rm")
     args.unshift("docker-compose")
+    system(args.join(" "))
+  end
+
+  def reload(args)
+    service(["up"])
+    args.insert(1, "-d")
+    args.unshift("up")
+    args.unshift("docker-compose")
+    args.push("--force-recreate")
     system(args.join(" "))
   end
 
