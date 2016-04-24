@@ -89,11 +89,22 @@ HEREDOC
   # Updating is just running bootstrap again with newer bootstrap bin
   def update(args)
     system('cd /usr/local/gdev-env && git fetch && git reset --hard origin/master && bin/bootstrap')
+
+    # Rebuild and reload all services
+    puts "Refreshing all gdev services..."
+    service(['build nginx'])
+    service(['reload'])
   end
 
   def service(args)
+    if (args[0] == "reload")
+      args[0] = "up"
+      args.push("--force-recreate")
+    end
     if (args[0] == "up")
       args.push("-d")
+    elsif (args[0].nil?)
+      no_command_given = true
     end
     args.unshift("docker-compose", "-f /usr/local/gdev-env/docker/services.yml", "-p gdev")
     box_ip=`dlite ip`
@@ -102,6 +113,11 @@ HEREDOC
     end
     # Set system variables which we can use in our templates
     system({"BOX_IP" => box_ip},args.join(" "))
+
+    # Tell about custom commands if help view was shown
+    if (no_command_given)
+      puts "  reload             Force updates all service containers"
+    end
   end
 
   # Syntactic sugar for: $ gdev ps
