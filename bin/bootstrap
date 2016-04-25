@@ -176,7 +176,7 @@ if [ -f "$HOME/.dlite/config.json" ]; then
       echo "Dlite is installed but dhyve-os is wrong..."
       echo "Updating dhyve-os through dlite..."
       /usr/local/bin/dlite stop
-      /usr/local/bin/dlite update -v $DHYVE_VERSION
+      /usr/local/bin/dlite update -v $DHYVE_NEEDED
       /usr/local/bin/dlite start
       sleep 10
     else
@@ -189,13 +189,12 @@ if [ -f "$HOME/.dlite/config.json" ]; then
 
 else # If dlite was not installed yet
   echo 'Installing dlite VM...'
-  sudo /usr/local/bin/dlite install -v $DHYVE_VERSION --share=$HOME
+  sudo /usr/local/bin/dlite install --os-version=$DHYVE_NEEDED --share=$HOME
 
   echo 'Starting dlite VM...'
   /usr/local/bin/dlite start
 fi
 
-## Run Ansible Playbook ##
 echo 'Handing Playbook to Ansible (will require your sudo password)...'
 echo -e "\n"
 

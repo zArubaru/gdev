@@ -5,6 +5,7 @@
   vars:
     gdev_env_dir: /usr/local/gdev-env
     gdev_user_files: "{{ansible_env.HOME}}/.gdev"
+    dlite_version: "2.3.0"
 
   tasks:
 
