@@ -6,6 +6,7 @@
     gdev_env_dir: /usr/local/gdev-env
     gdev_user_files: "{{ansible_env.HOME}}/.gdev"
     dlite_version: "2.3.0"
+    machine_ip: 127.0.0.1
 
   tasks:
 
@@ -21,7 +22,6 @@
       with_items:
         - docker
         - docker-compose
-        - dlite
       tags: ['pre-install']
 
     - name: Create gdev directory
@@ -37,47 +37,13 @@
         state: link
       tags: ['pre-install']
 
-    # This is a small hacky check to tell users to avoid colliding paths with dlite
-    - name: Check how many nfs mounts exist in /Users/ path
-      shell: grep '/Users' /etc/exports | wc -l | xargs
-      register: nfs_mount_count
-      tags: ['pre-install']
-
-    - name: Fail if user has any nfs mounts in /Users/
-      fail: msg="Dlite doesn't work with other processes using /Users through nfs. Please use different mountpoint for other processes like Vagrant instead"
-      when: nfs_mount_count is defined and nfs_mount_count.stdout|int > 1
-      tags: ['pre-install']
-
-    - name: Check if dlite is installed
-      stat:
-        path: "{{ansible_env.HOME}}/.dlite/config.json"
-      register: dlite_installed
-
-    - name: Ask user to install dlite manually if dlite is not installed
-      fail:
-        msg: "Try to install dlite manually: $ sudo dlite install --os-version={{ dlite_version }} --share={{ansible_env.HOME}}"
-      when: not dlite_installed.stat.exists
-
     - name: "Check that we have /var/run/docker.sock socket"
       stat: path=/var/run/docker.sock
       register: docker_socket
 
     - name: Fail if no docker.sock
-      fail: msg="Dlite didn't mount /var/run/docker.sock try start/reinstalling dlite..."
+      fail: msg="Check that docker for mack is enabled! /var/run/docker.sock is not mounted :(..."
       when: not docker_socket.stat.exists
-
-    - name: Get machine ip address
-      shell: "{{ gdev_env_dir }}/bin/gdev machine ip"
-      register: machine_ip
-      ignore_errors: yes
-
-    - name: Fail if gdev machine didn't return ip
-      fail: msg="Dlite doesn't return ip. Please try to reboot your computer and then rerun this command"
-      when: machine_ip.stdout == ""
-
-    - name: "Debug dlite ip"
-      debug:
-        msg: "Dlite is up and running: {{ machine_ip.stdout }}"
 
     - name: Start gdev services
       command: "{{ gdev_env_dir }}/bin/gdev service up"
@@ -109,7 +75,7 @@
       become: yes
       become_method: sudo
       with_items:
-        - { ip: "{{ machine_ip.stdout }}", domain: test }
+        - { ip: "{{ machine_ip }}", domain: test }
 
     - name: Create dns resolver files at /etc/resolver/
       template:
@@ -119,4 +85,4 @@
       become: yes
       become_method: sudo
       with_items:
-        - { ip: "{{ machine_ip.stdout }}", domain: test }
+        - { ip: "{{ machine_ip }}", domain: test }
