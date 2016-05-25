@@ -20,8 +20,6 @@ dnsmasq:
   ports:
     - ${BOX_IP}:53:53/tcp
     - ${BOX_IP}:53:53/udp
-    - 172.17.0.1:53:53/tcp
-    - 172.17.0.1:53:53/udp
   cap_add:
     - NET_ADMIN
   command: "--address=/test/${BOX_IP}"
@@ -35,7 +33,7 @@ mail:
   ports:
     # Map mailhog into host machine port
     # This port is used in production too
-    - 172.17.0.1:25:1025
+    - 25:1025
   restart: always
 signaler:
   image: onnimonni/signaler

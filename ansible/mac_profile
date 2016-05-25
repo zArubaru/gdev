@@ -1,2 +1,0 @@
-# Dash Developer Environment Profile
-export PATH=$PATH:/usr/local/gdev-env/bin
