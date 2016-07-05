@@ -5,7 +5,6 @@
   vars:
     gdev_env_dir: /usr/local/gdev-env
     gdev_user_files: "{{ansible_env.HOME}}/.gdev"
-    dlite_version: "2.3.0"
     machine_ip: 127.0.0.1
 
   tasks:
@@ -15,14 +14,22 @@
       become: yes
       become_method: sudo
 
-    - name: Install Docker and Extras
-      homebrew:
-        name: "{{ item }}"
-        state: latest
-      with_items:
-        - docker
-        - docker-compose
-      tags: ['pre-install']
+    # Check that dlite is uninstalled
+    - name: Remove dlite
+      command: dlite uninstall
+      args:
+        removes: "{{ansible_env.HOME}}/.dlite/disk.img"
+      become: yes
+      become_method: sudo
+
+    # Remove dlite nfs mounts
+    - blockinfile:
+        dest: /etc/exports
+        state: absent
+        marker: ": dlite"
+
+    - name: Install Docker
+      homebrew_cask: name=docker state=present
 
     - name: Create gdev directory
       file:
@@ -37,12 +44,22 @@
         state: link
       tags: ['pre-install']
 
+    - name: Start docker for mac
+      command: "open -a docker"
+
+
+    - name: "Check that we have /var/run/docker.sock socket"
+      wait_for:
+        path: /var/run/docker.sock
+        state: present
+        timeout: 20
+
     - name: "Check that we have /var/run/docker.sock socket"
       stat: path=/var/run/docker.sock
       register: docker_socket
 
     - name: Fail if no docker.sock
-      fail: msg="Check that docker for mack is enabled! /var/run/docker.sock is not mounted :(..."
+      fail: msg="Check that docker for mac is enabled! /var/run/docker.sock is not mounted :(..."
       when: not docker_socket.stat.exists
 
     - name: Start gdev services
