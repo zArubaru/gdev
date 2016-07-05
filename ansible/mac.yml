@@ -28,7 +28,7 @@
         state: absent
         marker: ": dlite"
 
-    - name: Install Docker
+    - name: Install Docker for Mac
       homebrew_cask: name=docker state=present
 
     - name: Create gdev directory
