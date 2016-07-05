@@ -6,9 +6,15 @@ Helper script for all your container related development needs. This is for loca
 
 ## Quick installation
 
-    bash <(curl -fsSL https://raw.githubusercontent.com/devgeniem/gdev/master/bin/bootstrap)
-    # Start a new shell and cd to a project that uses [Docker Compose](https://docs.docker.com/compose/)
-    gdev up
+Install gdev dependencies and start development environment by running:
+
+    $ bash <(curl -fsSL https://raw.githubusercontent.com/devgeniem/gdev/master/bin/bootstrap)
+
+## Start project containers
+
+Start a new shell and cd to a project that uses [Docker Compose](https://docs.docker.com/compose/)
+
+    $ gdev up
 
 ## Short list of usual commands
 ```
