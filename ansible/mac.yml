@@ -28,6 +28,9 @@
         state: absent
         marker: ": dlite"
 
+    - name: Remove dlite binary
+      homebrew: name=dlite state=absent
+
     - name: Install Docker for Mac
       homebrew_cask: name=docker state=present
 
