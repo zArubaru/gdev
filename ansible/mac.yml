@@ -34,6 +34,19 @@
     - name: Install Docker for Mac
       homebrew_cask: name=docker state=present
 
+    - name: Install Unison
+      homebrew: name=unison state=installed
+
+    - name: Install unison-fsmonitor dependencies
+      pip: name=MacFSEvents state=installed
+
+    - name: Install unison-fsmonitor for mac (unox)
+      get_url:
+        url: https://raw.githubusercontent.com/hnsl/unox/4cf16fa20ec1f5b2fcafd7b78cac6dfedca18a86/unox.py
+        dest: /usr/local/bin/unison-fsmonitor
+        mode: 0755
+        checksum: sha256:b5bb9d8014a0f9b1d61e21e796d78dccdf1352f23cd32812f4850b878ae4944c
+
     - name: Create gdev directory
       file:
         path: "{{ansible_env.HOME}}/.gdev"

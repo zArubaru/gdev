@@ -1,5 +1,6 @@
 #!/usr/bin/env ruby
 require 'open3'
+require 'yaml'
 
 class DevTool
   MAIN_HELP_BANNER = <<HEREDOC
@@ -19,7 +20,6 @@ Commands:
   help               Get help on a command
   kill               Kill containers
   logs               View output from containers
-  machine            Manage the virtual machine
   ps                 List containers
   pull               Pulls service images
   restart            Restart services
@@ -68,19 +68,17 @@ HEREDOC
 
   def up(args)
     service(["up"])
+
+    # Run startup scripts
+    settings = before_up()
+
     args.insert(1, "-d")
     args.unshift("docker-compose")
     system(args.join(" "))
-  end
 
-  def machine(args)
-    if args.empty?
-      puts `dlite --help`
-    elsif args[0] == 'create'
-      system('dlite install')
-    else
-      args.unshift('dlite')
-      system(args.join(' '))
+    if not settings['unison'].empty?
+        puts "Starting file sync..."
+        system("UNISONLOCALHOSTNAME=dev-machine unison . socket://localhost:#{settings['unison']['port']}/ -repeat watch -auto -batch -prefer newer -ignore 'Path .docker' -ignore 'Path .git'")
     end
   end
 
@@ -136,6 +134,35 @@ HEREDOC
   # I want this to look like vagrant binary
   def status(args)
     system("docker-compose ps")
+  end
+
+  # If docker-compose has container using onnimonni/unison container run that one first and sync
+  def before_up()
+    settings = {}
+    config_string = `docker-compose config`
+    if File.exist?('docker-compose.yml') and not config_string.empty?
+        config = YAML.load(config_string)
+
+        # If the docker-compose includes any unison containers sync with them
+        config['services'].each do |container_name,data|
+
+            if not data['image'].empty? and not data['ports'].nil? and data['image'].include? 'onnimonni/unison'
+                # Start data container
+                system("docker-compose up -d #{container_name}")
+                # Sleep just a moment
+                sleep 1
+                # Sync with that container
+                port = data['ports'].first.split(':').first
+                puts "INFO: Syncing filesystem to #{container_name} container with unison..."
+                system("UNISONLOCALHOSTNAME=dev-machine unison . socket://localhost:#{port}/ -auto -batch -prefer newer -ignore 'Path .docker' -ignore 'Path .git' -ignorearchives -silent")
+                puts "INFO: Sync is ready!"
+
+                settings = { 'unison' => { 'port' => port } }
+            end
+        end
+    end
+
+    return settings
   end
 
   # H.T. https://gist.github.com/lpar/1032297
