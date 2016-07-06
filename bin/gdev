@@ -76,7 +76,7 @@ HEREDOC
     args.unshift("docker-compose")
     system(args.join(" "))
 
-    if not settings['unison'].empty?
+    if not settings['unison'].nil? and not settings['unison'].empty?
         puts "Starting file sync..."
         system("UNISONLOCALHOSTNAME=dev-machine unison . socket://localhost:#{settings['unison']['port']}/ -repeat watch -auto -batch -prefer newer -ignore 'Path .docker' -ignore 'Path .git'")
     end
