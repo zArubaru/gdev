@@ -8,6 +8,9 @@
     machine_ip: 127.0.0.1
 
   tasks:
+    - name: Give sudo password some time to load correctly
+      pause: seconds=5
+
     - name: Install Docker for Mac
       homebrew_cask: name=docker state=present
 
