@@ -38,12 +38,16 @@
       args:
         removes: "{{ansible_env.HOME}}/.dlite/config.json"
 
-
     # Remove dlite nfs mounts
-    - blockinfile:
+    - name: Check if /etc/exports exists
+      stat: path=/etc/exports
+      register: etc_exports_check
+    - name: Remove dlite nfs mounts
+      blockinfile:
         dest: /etc/exports
         state: absent
         marker: ": dlite"
+      when: etc_exports_check.stat.exists == True
 
     - name: Remove dlite binary
       homebrew: name=dlite state=absent
