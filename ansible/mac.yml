@@ -37,6 +37,8 @@
       command: dlite uninstall
       args:
         removes: "{{ansible_env.HOME}}/.dlite/config.json"
+      become: yes
+      become_method: sudo
 
     # Remove dlite nfs mounts
     - name: Check if /etc/exports exists
