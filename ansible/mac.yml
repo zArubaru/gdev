@@ -52,7 +52,16 @@
       when: etc_exports_check.stat.exists == True
 
     - name: Remove dlite binary
-      homebrew: name=dlite state=absent
+      command: brew remove dlite
+      args:
+        removes: /usr/local/bin/dlite
+
+    - name: Remove dlite binary
+      command: dlite uninstall
+      args:
+        removes: "{{ansible_env.HOME}}/.dlite/config.json"
+      become: yes
+      become_method: sudo
 
     - name: Create gdev directory
       file:
