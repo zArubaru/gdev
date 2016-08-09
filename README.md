@@ -8,7 +8,7 @@ Helper script for all your container related development needs. This is for loca
 
 Install gdev dependencies and start development environment by running:
 
-    $ bash <(curl -fsSL https://raw.githubusercontent.com/devgeniem/gdev/master/bin/bootstrap)
+    $ curl -fsSL https://raw.githubusercontent.com/devgeniem/gdev/master/bin/bootstrap | bash
 
 ## Start project containers
 
