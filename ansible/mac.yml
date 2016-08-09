@@ -32,37 +32,6 @@
         mode: 0755
         checksum: sha256:cb49197eef7a19f12bd46c921a1e3a388f8f26e77307eb3f366d274003859201
 
-    # Check that dlite is uninstalled
-    - name: Remove dlite
-      command: dlite uninstall
-      args:
-        removes: "{{ansible_env.HOME}}/.dlite/config.json"
-      become: yes
-      become_method: sudo
-
-    # Remove dlite nfs mounts
-    - name: Check if /etc/exports exists
-      stat: path=/etc/exports
-      register: etc_exports_check
-    - name: Remove dlite nfs mounts
-      blockinfile:
-        dest: /etc/exports
-        state: absent
-        marker: ": dlite"
-      when: etc_exports_check.stat.exists == True
-
-    - name: Remove dlite binary
-      command: brew remove dlite
-      args:
-        removes: /usr/local/bin/dlite
-
-    - name: Remove dlite binary
-      command: dlite uninstall
-      args:
-        removes: "{{ansible_env.HOME}}/.dlite/config.json"
-      become: yes
-      become_method: sudo
-
     - name: Create gdev directory
       file:
         path: "{{ansible_env.HOME}}/.gdev"
