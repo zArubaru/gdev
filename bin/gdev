@@ -33,12 +33,13 @@ Commands:
   stop               Stop services
   up                 Create and start containers
   update             Update gdev environment
+  sync               Syncronize files with data container
 
 HEREDOC
 
   PROXY_UNMODIFIED_TO_COMPOSE=%w{build kill logs ps pull restart rm start stop}
   PROXY_MODIFIED=%w{up run}
-  OTHER_COMMANDS=%w{reload machine update service status shell exec}
+  OTHER_COMMANDS=%w{reload machine update service status shell exec sync}
 
   def initialize(args)
     if PROXY_UNMODIFIED_TO_COMPOSE.include?(args[0])
@@ -65,6 +66,7 @@ HEREDOC
     args.unshift("docker-compose")
     args.push("--force-recreate")
     system(args.join(" "))
+    puts "INFO: To syncronize files with data container run $ gdev sync"
   end
 
   def up(args)
@@ -79,9 +81,7 @@ HEREDOC
 
     if not settings['unison'].nil? and not settings['unison'].empty?
       # sync data
-      port = get_docker_host_port(settings['unison']['container_name'])
-      container_name = "#{settings['unison']['container_name']}"
-      sync(port,container_name,true)
+      puts "INFO: To syncronize files with data container run $ gdev sync"
     end
   end
 
@@ -157,9 +157,11 @@ HEREDOC
 
                 # Sync with that container
                 port = get_docker_host_port(container_name)
-                sync(port,container_name,false)
+                sync_args = [container_name,"false"]
+                sync(sync_args)
 
-                settings = { 'unison' => { 'port' => port, 'container_name' => "#{container_name}" } }
+                #settings = { 'unison' => { 'port' => port, 'container_name' => "#{container_name}" } }
+                settings = { 'unison' => { 'port' => port } }
             end
         end
     end
@@ -178,11 +180,23 @@ HEREDOC
     return port
   end
 
-  def sync(port,container_name,repeat)
-    puts "INFO: Syncing filesystem to #{container_name} container with unison, using port #{port}..."
+  def sync(args)
+    if args[0]
+      container_name = args[0]
+    else
+      container_name = "data" # use data container by default
+    end
+    if args[1]
+      repeat = args[1]
+    else
+      repeat = true # repeat by default
+    end
+    port = get_docker_host_port(container_name)
     if repeat == true
+      puts "INFO: Syncing files to #{container_name} container with unison, using port #{port}..."
       system("UNISONLOCALHOSTNAME=dev-machine unison . socket://localhost:#{port}/ -repeat watch -auto -batch -prefer newer -ignore 'Path .docker' -ignore 'Path .git'")
     else
+      puts "INFO: Initial filesystem sync to #{container_name} container with unison, using port #{port}..."
       system("UNISONLOCALHOSTNAME=dev-machine unison . socket://localhost:#{port}/ -auto -batch -prefer newer -ignore 'Path .docker' -ignore 'Path .git' -ignorearchives -silent")
     end
     puts "INFO: Sync is ready!"
