@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 require 'open3'
 require 'yaml'
+require 'json'
 
 class DevTool
   MAIN_HELP_BANNER = <<HEREDOC
@@ -77,8 +78,10 @@ HEREDOC
     system(args.join(" "))
 
     if not settings['unison'].nil? and not settings['unison'].empty?
-        puts "Starting file sync..."
-        system("UNISONLOCALHOSTNAME=dev-machine unison . socket://localhost:#{settings['unison']['port']}/ -repeat watch -auto -batch -prefer newer -ignore 'Path .docker' -ignore 'Path .git'")
+      # sync data
+      port = get_docker_host_port(settings['unison']['container_name'])
+      container_name = "#{settings['unison']['container_name']}"
+      sync(port,container_name,true)
     end
   end
 
@@ -151,18 +154,38 @@ HEREDOC
                 system("docker-compose up -d #{container_name}")
                 # Sleep just a moment
                 sleep 1
-                # Sync with that container
-                port = data['ports'].first.split(':').first
-                puts "INFO: Syncing filesystem to #{container_name} container with unison..."
-                system("UNISONLOCALHOSTNAME=dev-machine unison . socket://localhost:#{port}/ -auto -batch -prefer newer -ignore 'Path .docker' -ignore 'Path .git' -ignorearchives -silent")
-                puts "INFO: Sync is ready!"
 
-                settings = { 'unison' => { 'port' => port } }
+                # Sync with that container
+                port = get_docker_host_port(container_name)
+                sync(port,container_name,false)
+
+                settings = { 'unison' => { 'port' => port, 'container_name' => "#{container_name}" } }
             end
         end
     end
 
     return settings
+  end
+
+  def get_docker_host_port(container_name)
+    # Get the data container id
+    data_docker_id = %x(docker-compose ps -q #{container_name})
+    # Get the data container port
+    data_docker_ports = %x(docker inspect --format='{{json .NetworkSettings.Ports}}' #{data_docker_id})
+    data_docker_ports_obj = JSON.parse(data_docker_ports)
+    data_docker_host_port = data_docker_ports_obj["5000/tcp"][0]['HostPort']
+    port = data_docker_host_port
+    return port
+  end
+
+  def sync(port,container_name,repeat)
+    puts "INFO: Syncing filesystem to #{container_name} container with unison, using port #{port}..."
+    if repeat == true
+      system("UNISONLOCALHOSTNAME=dev-machine unison . socket://localhost:#{port}/ -repeat watch -auto -batch -prefer newer -ignore 'Path .docker' -ignore 'Path .git'")
+    else
+      system("UNISONLOCALHOSTNAME=dev-machine unison . socket://localhost:#{port}/ -auto -batch -prefer newer -ignore 'Path .docker' -ignore 'Path .git' -ignorearchives -silent")
+    end
+    puts "INFO: Sync is ready!"
   end
 
   # H.T. https://gist.github.com/lpar/1032297
