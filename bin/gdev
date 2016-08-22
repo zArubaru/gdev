@@ -149,7 +149,7 @@ HEREDOC
         # If the docker-compose includes any unison containers sync with them
         config['services'].each do |container_name,data|
 
-            if not data['image'].empty? and not data['ports'].nil? and data['image'].include? 'onnimonni/unison'
+            if not data['image'].nil? and not data['image'].empty? and not data['ports'].nil? and data['image'].include? 'onnimonni/unison'
                 # Start data container
                 system("docker-compose up -d #{container_name}")
                 # Sleep just a moment
