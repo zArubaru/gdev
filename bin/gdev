@@ -61,10 +61,13 @@ HEREDOC
 
   def reload(args)
     service(["up"])
-    args.insert(1, "-d")
+
+    args.unshift("-d")
+    args.unshift("--force-recreate")
     args.unshift("up")
     args.unshift("docker-compose")
-    args.push("--force-recreate")
+
+    puts args.join(" ")
     system(args.join(" "))
     puts "INFO: To syncronize files with data container run $ gdev sync"
   end
