@@ -194,10 +194,10 @@ HEREDOC
     port = get_docker_host_port(container_name)
     if repeat == true
       puts "INFO: Syncing files to #{container_name} container with unison, using port #{port}..."
-      system("UNISONLOCALHOSTNAME=dev-machine unison . socket://localhost:#{port}/ -repeat watch -auto -batch -prefer newer -ignore 'Path .docker' -ignore 'Path .git'")
+      system("UNISONLOCALHOSTNAME=dev-machine unison . socket://localhost:#{port}/ -ignorearchives -repeat watch -auto -batch -prefer newer -ignore 'Path .docker' -ignore 'Path .git'")
     else
       puts "INFO: Initial filesystem sync to #{container_name} container with unison, using port #{port}..."
-      system("UNISONLOCALHOSTNAME=dev-machine unison . socket://localhost:#{port}/ -auto -batch -prefer newer -ignore 'Path .docker' -ignore 'Path .git' -ignorearchives -silent")
+      system("UNISONLOCALHOSTNAME=dev-machine unison . socket://localhost:#{port}/ -ignorearchives -auto -batch -prefer newer -ignore 'Path .docker' -ignore 'Path .git' -silent")
     end
     puts "INFO: Sync is ready!"
   end
