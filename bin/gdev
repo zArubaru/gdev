@@ -17,6 +17,7 @@ Options:
 
 Commands:
   build              Build or rebuild services
+  cleanup           Deletes docker containers, images and volumes
   exec               Run command inside web container
   help               Get help on a command
   kill               Kill containers
@@ -39,7 +40,7 @@ HEREDOC
 
   PROXY_UNMODIFIED_TO_COMPOSE=%w{build kill logs ps pull restart rm start stop}
   PROXY_MODIFIED=%w{up run}
-  OTHER_COMMANDS=%w{reload machine update service status shell exec sync}
+  OTHER_COMMANDS=%w{reload cleanup machine update service status shell exec sync}
 
   def initialize(args)
     if PROXY_UNMODIFIED_TO_COMPOSE.include?(args[0])
@@ -72,6 +73,38 @@ HEREDOC
     after_reload()
 
     puts "INFO: To sync file changes in realtime to data container run $ gdev sync"
+  end
+
+  def cleanup(args)
+
+    if args.include?('--images')
+
+        puts "Removing all unused docker images..."
+        images = `docker images -q`
+
+        system "docker rmi #{images.tr("\n"," ")}" if $?.success? and not images.empty?
+
+    elsif args.empty?
+
+        puts "Removing exited docker containers..."
+
+        containers = `docker ps -a -q -f status=exited`
+
+        system "docker rm -v #{containers}" if $?.success? and not containers.empty?
+
+        puts "Removing dangling docker images..."
+
+        images = `docker images -f 'dangling=true' -q`
+
+        system "docker rmi #{images}" if $?.success? and not images.empty?
+
+        puts "Removing dangling docker volumes..."
+
+        volumes = `docker volume ls -qf dangling=true`
+        system "docker volume rm #{volumes}" if $?.success? and not volumes.empty?
+
+    end
+
   end
 
   def up(args)
