@@ -51,7 +51,7 @@ and instead more of these:
 
 ![self trusted https](https://cloud.githubusercontent.com/assets/5691777/13670189/1d697032-e6d1-11e5-99b5-aef757cb7f53.png)
 
-gdev includes custom certificate generator [onnimonni/signaler](https://github.com/onnimonni/signaler). gdev installer creates 1 self-signed unique ca certificate during installation and saves it in your system keychain. If you provide `HTTPS_HOST=your-address.test` env in your `docker-compose.yml` you will automatically have self-signed and trusted certificate for your development environment.
+gdev includes custom certificate generator [onnimonni/signaler](https://github.com/onnimonni/signaler). gdev installer creates a self-signed unique ca certificate during installation and saves it in your system keychain. If you provide `HTTPS_HOST=your-address.test` env in your `docker-compose.yml` you will automatically have self-signed and trusted certificate for your development environment.
 
 #### Custom SMTP server for debugging email
 We included [mailhog/mailhog](https://hub.docker.com/r/mailhog/mailhog/) docker container for easier debugging of emails. Just use `172.17.0.1:25` as smtp server in your application and you are good to go.
