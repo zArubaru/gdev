@@ -12,11 +12,57 @@ Install gdev dependencies and start development environment by running:
 
 ## Start project containers
 
-Start a new shell and cd to a project that uses [Docker Compose](https://docs.docker.com/compose/)
+Start a new shell and cd to a project that uses [docker-compose.yml](https://docs.docker.com/compose/)
 
 ```
 $ gdev up
 ```
+
+## What this tool includes
+gdev installer installs docker for mac plus few settings for better development environment.
+It setups 4 service containers into your docker.
+
+### Service Containers
+
+#### Nginx proxy
+This project uses excellent nginx proxy container from [jwilder/nginx-proxy](https://github.com/jwilder/nginx-proxy). This proxy reserver ports http/https ports from your localhost and proxies the requests to your project containers. Just provide `VIRTUAL_HOST=your-address.test` env in your projects `docker-compose.yml` and nginx proxy will take care of the rest.
+
+#### Custom DNS server
+We want to use real addresses for all containers. Some applications have strange behaviour if they are just used from `localhost:8080`. We use [andyshinn/dnsmasq](https://github.com/andyshinn/dnsmasq) for local dnsmasq which always responds `127.0.0.1` to any request. Installation script adds custom resolver file for your machine:
+
+```
+$ cat /etc/resolver/test
+domain test
+nameserver 127.0.0.1
+search_order 1
+```
+
+This means that all `*.test` addresses are now pointing into your local machine so you don't have to edit `/etc/hosts` file ever again. We used `.test` tld because [it is reserved by IETF](https://en.wikipedia.org/wiki/.test) and will never be [sold to google](http://www.theregister.co.uk/2015/03/13/google_developer_gtld_domain_icann/) like what happened to it's popular cousin `.dev`.
+
+#### Custom https certificate generator
+No more address bars like
+It's a really good practise to use https in production but only a few people use it in development. This makes it harder for people to notice `mixed content` error messages in development. While using gdev you won't see any of these:
+
+![non-trusted https](https://cloud.githubusercontent.com/assets/5691777/13670188/1b042b48-e6d1-11e5-804e-542781b85ff5.png)
+
+and instead more of these:
+
+![self trusted https](https://cloud.githubusercontent.com/assets/5691777/13670189/1d697032-e6d1-11e5-99b5-aef757cb7f53.png)
+
+gdev includes custom certificate generator [onnimonni/signaler](https://github.com/onnimonni/signaler). gdev installer creates 1 self-signed unique ca certificate during installation and saves it in your system keychain. If you provide `HTTPS_HOST=your-address.test` env in your `docker-compose.yml` you will automatically have self-signed and trusted certificate for your development environment.
+
+#### Custom SMTP server for debugging email
+We included [mailhog/mailhog](https://hub.docker.com/r/mailhog/mailhog/) docker container for easier debugging of emails. Just use `172.17.0.1:25` as smtp server in your application and you are good to go.
+
+Or if your legacy application has hard coded email server you can use this trick in your `docker-compose.yml`:
+
+```
+extra_hosts:
+    - "my-mail-server.com:172.17.0.1"
+```
+
+and docker will add it into the `/etc/hosts` file inside the container automatically during startup.
+
 
 ## Short list of usual commands
 
