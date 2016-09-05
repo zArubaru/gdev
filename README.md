@@ -41,7 +41,9 @@ This means that all `*.test` addresses are now pointing into your local machine 
 
 #### Custom https certificate generator
 No more address bars like
-It's a really good practise to use https in production but only a few people use it in development. This makes it harder for people to notice `mixed content` error messages in development. While using gdev you won't see any of these:
+It's a really good practise to use https in production but only a few people use it in development. This makes it harder for people to notice `mixed content` error messages in development.
+
+While using gdev you won't see any of these:
 
 ![non-trusted https](https://cloud.githubusercontent.com/assets/5691777/13670188/1b042b48-e6d1-11e5-804e-542781b85ff5.png)
 
