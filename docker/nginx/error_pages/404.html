@@ -3,27 +3,38 @@
 <head>
     <meta charset="utf-8">
     <title>404: gdev Domain Error</title>
+    <style>
+        pre {
+            background: lightgrey;
+            padding: 20px;
+            font-size: 16px;
+        }
+    </style>
     <script type="text/javascript">
       function loadDomain() {
-        var display = document.getElementById("display-domain");
-        display.innerHTML = document.domain;
+        var display_domain = document.getElementById("display-domain");
+        display_domain.innerHTML = document.domain;
         var yaml = document.getElementById("example-yaml-fix");
-        yaml.innerHTML = "environments:\n    VIRTUAL_HOST: "+document.domain;
+        yaml.innerHTML = "web:\n  environments:\n    VIRTUAL_HOST: "+document.domain+"\n    HTTPS_HOST: "+document.domain;
       }
     </script>
 </head>
 <body onload="javascript:loadDomain();">
 <h1 class="important"> The requested domain is not mapped to any container :(</h1>
-<p>Go to your project folder and run:</p>
+<p>First check your typing. If you really wanted to use <span id="display-domain"></span></p>
+<p>go to your project folder and run:</p>
 <pre>
-    $ gdev up
+$ gdev up
 </pre>
-<p>Check that <b>VIRTUAL_HOST</b> is defined in <b>docker-compose.yml</b>.</p>
-<b>Example docker-compose.yml</b>
+<p>Check that <b>VIRTUAL_HOST</b> env is defined in <b>docker-compose.yml</b>.</p>
+<b>Example docker-compose.yml:</b>
+<!-- Provide default example in case js is disabled -->
 <pre id="example-yaml-fix">
-    environments:
+web:
+    environment:
         VIRTUAL_HOST: example.test
+        HTTPS_HOST: example.test
 </pre>
-<p>If nothing helps look at the <a href="https://github.com/devgeniem/gdev#troubleshooting">troubleshooting guide ( in Github )</a>.</p>
+<p>If this doesn't help look into the <a href="https://github.com/devgeniem/gdev#troubleshooting">troubleshooting guide ( in Github )</a>.</p>
 </body>
 </html>
