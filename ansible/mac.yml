@@ -17,6 +17,9 @@
     - name: Install Unison
       homebrew: name=unison state=present
 
+    - name: Install python
+      homebrew: name=python state=present
+
     - name: Install pip
       easy_install: name=pip state=latest
       become: yes
@@ -24,6 +27,8 @@
 
     - name: Install unison-fsmonitor dependencies
       pip: name=MacFSEvents state=present
+      become: yes
+      become_method: sudo
 
     - name: Install unison-fsmonitor for mac (unox)
       get_url:
@@ -31,6 +36,17 @@
         dest: /usr/local/bin/unison-fsmonitor
         mode: 0755
         checksum: sha256:cb49197eef7a19f12bd46c921a1e3a388f8f26e77307eb3f366d274003859201
+
+    - name: Check gdev-env directory permissions
+      file:
+        path: "{{gdev_env_dir}}"
+        state: directory
+        owner: "{{ansible_env.USER}}"
+        group: "staff"
+        recurse: yes
+        mode: 0755
+      # If this was somehow root owned make sure it's not anymore
+      become: yes
 
     - name: Create gdev directory
       file:
@@ -67,12 +83,6 @@
     - name: Fail if no docker.sock
       fail: msg="Check that docker for mac is enabled! /var/run/docker.sock is not mounted :(..."
       when: not docker_socket.stat.exists
-
-    - name: Wait for signaler to create CA file
-      wait_for:
-        path: "{{ gdev_user_files }}/ca/ca.crt"
-        state: present
-        timeout: 30
 
     - name: Start or reload gdev services
       command: "{{ gdev_env_dir }}/bin/gdev service up --build --force-recreate"
