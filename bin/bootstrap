@@ -128,7 +128,7 @@ if [ -d "$GDEV_DIR" ]; then
 else
   # On OSX Sierra /usr/local is not owned by admin user and we can't just clone over there
   echo "Checking out gdev repo... ( This needs sudo permissions )"
-  sudo git clone https://github.com/$REPO.git
+  sudo git clone https://github.com/$REPO.git $GDEV_DIR 
 
   # Check that gdev folder has right permissions
   sudo chown -R $USER:$(id -gn) $GDEV_DIR
